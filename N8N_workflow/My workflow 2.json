@@ -1,0 +1,318 @@
+{
+  "name": "My workflow 2",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "15948e3d-867a-423a-8c81-cae7aa2fed83",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -16,
+        0
+      ],
+      "id": "56faf5bc-ef4b-4c28-a115-4ee8ce1ae2ff",
+      "name": "Webhook",
+      "webhookId": "15948e3d-867a-423a-8c81-cae7aa2fed83"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ce8c6017-675c-493a-898a-db902a912738",
+              "name": "body",
+              "value": "={{ $json.body }}",
+              "type": "object"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        208,
+        0
+      ],
+      "id": "d351cb9c-8600-4345-89b6-ae6b1aabeee0",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are an AI Lead Profiling Assistant.\n\nYour task is to analyze the visitor information below and classify the lead into ONE of these categories:\n\n1. Organizational Development\n2. Sales Bots\n\nUse all available information:\n- Visitor details (name, company, designation)\n- Visitor message/query\n- Website pages visited\n\nClassification Guidelines:\n\nAssign \"Sales Bots\" if the visitor:\n- Viewed pages related to sales bots, AI sales, roleplay, SDR training, pricing for sales products, CRM, sales automation, or similar.\n- Asked about sales coaching, AI sales assistants, or sales enablement.\n\nAssign \"Organizational Development\" if the visitor:\n- Viewed pages related to leadership, employee development, organizational effectiveness, HR, L&D, coaching, or culture.\n- Asked about leadership training, organizational transformation, or employee development.\n\nReturn ONLY a valid JSON object in the following format:\n\n{\"name\": \"Rahul Sharma\",\n    \"email\": \"rahul@gmail.com\",\n    \"company\": \"ABC Pvt Ltd\",\n    \"designation\": \"Sales Manager\",\n    \"phone\": \"9876543210\",\n    \"message\": \"We're looking for AI bots that can train our SDR team.\",\n    \"visited_pages\": [\n      \"/\",\n      \"/sales-roleplay\",\n      \"/pricing\",\n      \"/case-studies\"\n    ],\n  \"category\": \"Sales Bots\",\n  \"reason\": \"Brief explanation for the classification.\",\n  \"priority\": \"High\",\n\"sales_email_subject\": \"New High Priority Lead - Sales Bots\",\n  \"sales_email_body\": \"A new lead has been profiled.\\n\\nName: Rahul Sharma\\nEmail: rahul@gmail.com\\nCompany: ABC Pvt Ltd\\nDesignation: Sales Manager\\nCategory: Sales Bots\\nPriority: High\\nReason: The visitor explored Sales Bot pages and requested AI SDR training.\\n\\nMessage:\\nWe're looking for AI bots that can train our SDR team.\\n\\nVisited Pages:\\n/home\\n/sales-roleplay\\n/pricing\\n/case-studies\"\n}\n\nDo not include markdown, code fences, or any extra text.\n\nVisitor Details\n\nName: {{ $json.body.name }}\nEmail: {{ $json.body.email }}\nCompany: {{ $json.body.company }}\nDesignation: {{ $json.body.designation }}\n\nVisitor Message: {{ $json.body.message }}\n\nVisited Pages:\n{{ $json.body.visited_pages }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        416,
+        0
+      ],
+      "id": "df3b50ee-10c3-4d64-a9da-513b9f44869b",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        320,
+        176
+      ],
+      "id": "2f159acf-e1d5-4d6e-8a77-5317f97feb1e",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": null,
+          "name": "",
+          "__aiGatewayManaged": true
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1Wv5b8Iebhg2zxfaIym7juT5gJcy1JtAldPEWJsqiKjY",
+          "mode": "list",
+          "cachedResultName": "Customer Data",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Wv5b8Iebhg2zxfaIym7juT5gJcy1JtAldPEWJsqiKjY/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Wv5b8Iebhg2zxfaIym7juT5gJcy1JtAldPEWJsqiKjY/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Email": "={{ $('Edit Fields').item.json.body.email }}",
+            "Company": "={{ $('Edit Fields').item.json.body.company }}",
+            "Message": "={{ $('Edit Fields').item.json.body.message }}",
+            "Visited Pages": "={{ $json.visited_pages }}",
+            "Category": "={{ $json.category }}",
+            "Reason": "={{ $json.reason }}",
+            "Priority": "={{ $json.priority }}",
+            "Name": "={{ $('Edit Fields').item.json.body.name }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Company",
+              "displayName": "Company",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Message",
+              "displayName": "Message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Visited Pages",
+              "displayName": "Visited Pages",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Category",
+              "displayName": "Category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Priority",
+              "displayName": "Priority",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Reason",
+              "displayName": "Reason",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        976,
+        0
+      ],
+      "id": "29476798-fa11-4c4e-9a3f-e820589b28ed",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "yeKzN7d1nc6z2hHS",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const raw = $input.item.json.output ?? $input.item.json.text ?? $input.item.json.content;\n\n// Parse the JSON string\nconst parsed = JSON.parse(raw);\n\n// Format visited_pages\nif (Array.isArray(parsed.visited_pages)) {\n  parsed.visited_pages = parsed.visited_pages\n    .map(page => {\n      if (page === \"/\") return \"Home\";\n\n      return page\n        .replace(/^\\//, \"\") // Remove leading /\n        .split(\"-\")\n        .map(word => word.charAt(0).toUpperCase() + word.slice(1))\n        .join(\" \");\n    })\n    .join(\"\\n\"); // Change to \", \" if you prefer a single line\n}\n\nreturn [{ json: parsed }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        752,
+        0
+      ],
+      "id": "1efcff87-a380-411c-ab01-f5248721944e",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "sendTo": "prasenjitsasmal1619@gmail.com",
+        "subject": "={{ $json.sales_email_subject }}",
+        "emailType": "text",
+        "message": "={{ $json.sales_email_body }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        944,
+        -224
+      ],
+      "id": "7a0c26a4-1ad0-49a7-a932-da761ee997cc",
+      "name": "Send a message",
+      "webhookId": "db8feec4-f008-4175-9132-8b8e3170d4d2",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "89yIe2svVQHK1lX1",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "68b0c9bc-d394-4738-95d4-7dff1ed36b8f",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "29361c5ac0d9d1323a7b4041e9303b3364a7e71227665d29192fd16645cb2791"
+  },
+  "nodeGroups": [],
+  "id": "lcNlowaicPUxq5tl",
+  "tags": []
+}
