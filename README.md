@@ -1,4 +1,4 @@
-# Cadence AI — Lead Profiling Demo
+# Mockcall AI — Lead Profiling Demo
 
 A small React + Vite marketing site used to demonstrate an n8n "Lead
 Profiling" workflow. It has no backend: page-visit history is tracked in
